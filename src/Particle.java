@@ -38,14 +38,14 @@ public class Particle {
 		}
 	}
 
-	public void move(long dt) {
+	public void move(double dt) {
 		if (trail.size() > TRAIL_LENGTH) trail.remove(trail.size()-1);
 		trail.add(0,new Dimension((int) x , (int) y));
 		x += dx*dt;
 		y += dy*dt;
 	}
 	
-	public void accelerate(ArrayList<Particle> particles, long dt) {
+	public void accelerate(ArrayList<Particle> particles, double dt) {
 		
 		double f = 0;
 		for (Particle p : particles ) {
