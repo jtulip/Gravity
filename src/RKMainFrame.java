@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseWheelEvent;
 
-public class MainFrame extends JFrame {
+public class RKMainFrame extends JFrame {
 	
 	private static final int XPOS = 400;
 	private static final int YPOS = 100;
@@ -27,7 +27,7 @@ public class MainFrame extends JFrame {
 	private static double zoomFactor;
 	
 
-	private static MainFrame frame;
+	private static RKMainFrame frame;
 	private JPanel contentPane;
 	
 	private static volatile boolean go_on = true;
@@ -37,15 +37,15 @@ public class MainFrame extends JFrame {
 	 */
 	public static void main(String[] args) {
 		zoomFactor = 1.0;
-		ArrayList<Particle> particles = new ArrayList<Particle>();
-		particles.add(new Particle(XDIM/2, YDIM/2, -0.002, 0.0, 200000, Color.RED));
-		particles.add(new Particle(XDIM/2, YDIM/4, 0.5, 0.0, 50, Color.ORANGE));
-		particles.add(new Particle(XDIM/5, YDIM/2, 0.0, -0.5, 2000, Color.YELLOW));
-		particles.add(new Particle(XDIM/5+40, YDIM/2, 0.0, -(0.50+0.15), 5, Color.GREEN));
-		particles.add(new Particle(XDIM*2.0+22, YDIM/2, 0.0, 0.2-0.03605, 200, Color.BLUE));
-		particles.add(new Particle(XDIM*2.0-22, YDIM/2, 0.0, 0.2+0.03605, 200, Color.MAGENTA));
+		ArrayList<RKParticle> particles = new ArrayList<RKParticle>();
+		particles.add(new RKParticle(XDIM/2, YDIM/2, -0.002, 0.0, 200000, Color.RED));
+		particles.add(new RKParticle(XDIM/2, YDIM/4, 0.5, 0.0, 50, Color.ORANGE));
+		particles.add(new RKParticle(XDIM/5, YDIM/2, 0.0, -0.5, 2000, Color.YELLOW));
+		particles.add(new RKParticle(XDIM/5+40, YDIM/2, 0.0, -(0.50+0.155), 5, Color.GREEN));
+		particles.add(new RKParticle(XDIM*2.0+22, YDIM/2, 0.0, 0.2-0.03605, 200, Color.BLUE));
+		particles.add(new RKParticle(XDIM*2.0-22, YDIM/2, 0.0, 0.2+0.03605, 200, Color.MAGENTA));
 		
-		frame = new MainFrame();
+		frame = new RKMainFrame();
 		frame.setVisible(true);
 		gameLoop(particles);
 	}
@@ -53,9 +53,9 @@ public class MainFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public MainFrame() {
+	public RKMainFrame() {
 		
-		this.setTitle("Gravity");
+		this.setTitle("RKGravity");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(XPOS, YPOS, XDIM, YDIM);
 		
@@ -89,7 +89,7 @@ public class MainFrame extends JFrame {
 		
 	}
 	
-	private static void gameLoop(ArrayList<Particle> particles) {
+	private static void gameLoop(ArrayList<RKParticle> particles) {
 		
 		long ct = System.nanoTime();
 		
@@ -116,8 +116,16 @@ public class MainFrame extends JFrame {
 			}
 			double centerMassX = momentX/sumM;
 			double centerMassY = momentY/sumM;
-			for (Particle p : particles) {
-				p.accelerate(particles, dt);
+			
+			//do the Runge-Kutta thing
+			for (int k = 1; k <= 4; k++) {
+				for (RKParticle p : particles) {
+					p.calcAccK(particles, dt, k);
+					p.calcPosK(dt, k);
+				}				
+			}
+			
+			for (RKParticle p : particles) {
 				p.move(dt);
 				p.draw(gr,centerMassX, centerMassY, zoomFactor, XDIM, YDIM);
 			}
